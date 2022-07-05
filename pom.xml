@@ -21,14 +21,10 @@
             <version>5.5.13.1</version>
         </dependency>
 
-<!--    5.5.13.2是公共仓库版本，
-        5.5.13.3是我修改源码进行bugfix的版本，该版本仅仅在我本地仓库
-        -->
         <dependency>
             <groupId>com.itextpdf</groupId>
             <artifactId>itext-xtra</artifactId>
             <version>5.5.13.2</version>
-<!--            <version>5.5.13.3</version>-->
         </dependency>
 
         <!--字体-->
