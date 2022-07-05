@@ -4,7 +4,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import com.itextpdf.text.BaseColor;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
@@ -29,12 +28,12 @@ public class ITextPdfUtil {
 
                     PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
                     canvas.saveState();
-                    canvas.setColorFill(BaseColor.WHITE);
-                    // canvas.setColorFill(BaseColor.BLUE);
+                    canvas.setColorFill(BaseColor.BLACK);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
                     // canvas.rectangle(mode.getX() - 1, mode.getY(),
                     // mode.getWidth() + 2, mode.getHeight());
-                    canvas.rectangle(mode.getX()+mode.getWidth(), mode.getY(), 100, mode.getHeight());
+                    //开始覆盖内容
+                    canvas.rectangle(mode.getX()+mode.getWidth(), mode.getY(), 80, mode.getHeight());
 
                     canvas.fill();
                     canvas.restoreState();
@@ -103,8 +102,8 @@ public class ITextPdfUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String source = "F:/test.pdf";
-        String target = "F:/test222.pdf";
+        String source = "G:/test.pdf";
+        String target = "G:/test222.pdf";
         List<String> keywords = new ArrayList<String>();
         keywords.add("处方金额");
         keywords.add("医师");
