@@ -102,11 +102,11 @@ public class ITextPdfUtil {
     }
 
     public static void main(String[] args) throws Exception {
-        String source = "G:/test.pdf";
+        String source = "G:/测试.pdf";
         String target = "G:/test222.pdf";
         List<String> keywords = new ArrayList<String>();
-        keywords.add("处方金额");
-        keywords.add("医师");
+//        keywords.add("处方金额");
+        keywords.add("测试");
         new ITextPdfUtil().manipulatePdf(source, target, keywords);
     }
 }
