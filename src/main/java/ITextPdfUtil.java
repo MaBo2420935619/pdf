@@ -20,20 +20,9 @@ public class ITextPdfUtil {
 
     /**
      * @Description : 匹配pdf中的文字，进行替换
-     * //        Map<String, String> map = new HashMap<>();
-     * //        map.put("斑块状银屑病","****");
-     * //        new ITextPdfUtil().manipulatePdf(source, target, map);
      * @Author : mabo
     */
-
-    public static boolean manipulatePdf(String src, String dest, Map<String,String> keyss) throws Exception {
-        Set<String> keys = keyss.keySet();
-        Iterator<String> iterator = keys.iterator();
-        List<String> keywords = new ArrayList<>();
-        while (iterator.hasNext()){
-            String next = iterator.next();
-            keywords.add(next);
-        }
+    public static boolean manipulatePdf(String src, String dest, List<String> keywords,String replace ) throws Exception {
         PdfReader pdfReader = null;
         PdfStamper stamper = null;
         try {
@@ -57,13 +46,13 @@ public class ITextPdfUtil {
                     //开始写入文本
                     canvas.beginText();
                     BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
-                    Font font = new Font(bf,10,Font.BOLD);
+                    Font font = new Font(bf,mode.getHeight(),Font.BOLD);
                     //设置字体和大小
                     canvas.setFontAndSize(font.getBaseFont(), 10);
                     //设置字体的输出位置
                     canvas.setTextMatrix(mode.getX(), mode.getY()+5);
                     //要输出的text
-                    canvas.showText(keyss.get(keywords.get(i)) );
+                    canvas.showText(replace) ;
                     canvas.endText();
                     canvas.fill();
                     canvas.restoreState();
@@ -150,65 +139,7 @@ public class ITextPdfUtil {
         }
         pdDocument.close();
     }
-    /**
-     * @Description : 根据关键字将其后面的文字用方框覆盖
-     * @Author : mabo
-    */
 
-    public static boolean manipulatePdf(String src, String dest, List<String> keywords) throws Exception {
-        File file=new File(src);
-        File changeFile=new File(dest);
-        PdfReader pdfReader = null;
-        PdfStamper stamper = null;
-        try {
-            pdfReader = new PdfReader(src);
-            stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
-            List<PdfBDO> list = renderText(pdfReader, keywords);
-            if (list != null) {
-                for (int i = 0; i < list.size(); i++) {
-                    PdfBDO mode = list.get(i);
-
-                    PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
-                    canvas.saveState();
-                    canvas.setColorFill(BaseColor.WHITE);
-                    // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
-                    // canvas.rectangle(mode.getX() - 1, mode.getY(),
-                    // mode.getWidth() + 2, mode.getHeight());
-                    //开始覆盖内容,实际操作位置
-                    canvas.rectangle(mode.getX()+mode.getWidth(), mode.getY(), 80, mode.getHeight());
-                    canvas.fill();
-                    canvas.setColorFill(BaseColor.BLACK);
-                    //开始写入文本
-                    canvas.beginText();
-                    //BaseFont bf = BaseFont.createFont(URLDecoder.decode(CutAndPaste.class.getResource("/AdobeSongStd-Light.otf").getFile()), BaseFont.IDENTITY_H, BaseFont.EMBEDDED);
-                    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
-                    Font font = new Font(bf,10,Font.BOLD);
-                    //设置字体和大小
-                    canvas.setFontAndSize(font.getBaseFont(), 10);
-                    //设置字体的输出位置
-                    canvas.setTextMatrix(mode.getX()+mode.getWidth(), mode.getY()+5);
-                    //要输出的text
-                    canvas.showText("多退少补" );
-                    canvas.endText();
-                    canvas.fill();
-                    canvas.restoreState();
-                }
-            }
-            return true;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            if (stamper != null)
-                stamper.close();
-            if (pdfReader != null)
-                pdfReader.close();
-        }
-        return false;
-    }
 
     public  static List<PdfBDO> renderText(PdfReader pdfReader, final List<String> keywords) {
         final List<PdfBDO> list = new ArrayList<PdfBDO>();
