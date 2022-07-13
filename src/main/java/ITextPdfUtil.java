@@ -16,6 +16,14 @@ import com.itextpdf.text.pdf.parser.TextRenderInfo;
 
 public class ITextPdfUtil {
 
+    public static void main(String[] args) throws Exception {
+        String source = "F:/测试文件/temp2.pdf";
+        String target = "F:/test222.pdf";
+        List<String> keywords = new ArrayList<String>();
+        keywords.add("管");
+        new ITextPdfUtil().manipulatePdf(source, target, keywords);
+    }
+
     public boolean manipulatePdf(String src, String dest, List<String> keywords) throws Exception {
         PdfReader pdfReader = null;
         PdfStamper stamper = null;
@@ -26,7 +34,6 @@ public class ITextPdfUtil {
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     TextLineMode mode = list.get(i);
-
                     PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
                     canvas.saveState();
                     canvas.setColorFill(BaseColor.WHITE);
@@ -102,14 +109,7 @@ public class ITextPdfUtil {
         return list;
     }
 
-    public static void main(String[] args) throws Exception {
-        String source = "F:/test.pdf";
-        String target = "F:/test222.pdf";
-        List<String> keywords = new ArrayList<String>();
-        keywords.add("处方金额");
-        keywords.add("医师");
-        new ITextPdfUtil().manipulatePdf(source, target, keywords);
-    }
+
 }
 
 
