@@ -23,9 +23,7 @@ public class Client {
         List<String> keywords = new ArrayList<String>();
         keywords.add("斑块状银屑病");
         keywords.add("医师");
-        ITextPdfUtil.manipulatePdf(source, target, keywords,"*");
-
-
+        ITextPdfUtil.manipulatePdf(source, target, keywords);
 //
 //
 //        //图片转pdf

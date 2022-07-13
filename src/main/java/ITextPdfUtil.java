@@ -30,15 +30,15 @@ public class ITextPdfUtil {
             pdfReader = new PdfReader(src);
             stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
             char[] chars = keyword.toCharArray();
-            HashMap<String, List<TextLineMode>> textMap = new HashMap<>();
+            HashMap<String, List<PdfBDO>> textMap = new HashMap<>();
             for (char c: chars) {
                 String s = String.valueOf(c);
-                List<TextLineMode> textLineModes = renderText(pdfReader, s);
+                List<PdfBDO> textLineModes = renderText(pdfReader, s);
                 textMap.put(s,textLineModes);
             }
-            List<TextLineMode> textLineModes = textMap.get(String.valueOf(chars[0]));
+            List<PdfBDO> textLineModes = textMap.get(String.valueOf(chars[0]));
             Map<Float,Float> mapY = new HashMap<>();
-            for (TextLineMode textLineMode: textLineModes) {
+            for (PdfBDO textLineMode: textLineModes) {
                 //根据首字符 找出同一行的文字
                 float y = textLineMode.getY();
                 float x = textLineMode.getX();
@@ -46,15 +46,15 @@ public class ITextPdfUtil {
             }
             Set<Float> floats = mapY.keySet();
             Iterator<Float> iterator = floats.iterator();
-            HashMap<Float, Map<String,TextLineMode>> keyYMap = new HashMap<>();
+            HashMap<Float, Map<String,PdfBDO>> keyYMap = new HashMap<>();
             while (iterator.hasNext()){
                 Float y = iterator.next();
                 Float x = mapY.get(y);
-                HashMap<String, TextLineMode> tMap = new HashMap<>();
+                HashMap<String, PdfBDO> tMap = new HashMap<>();
                 for (int i = 0; i < chars.length; i++) {
                     char c=chars[i];
-                    List<TextLineMode> textLineModes1 = textMap.get(String.valueOf(c));
-                    for (TextLineMode t : textLineModes1) {
+                    List<PdfBDO> textLineModes1 = textMap.get(String.valueOf(c));
+                    for (PdfBDO t : textLineModes1) {
                         if (t.getY()==y){
                             //判断两文字之间的具体是否符合要求
                             float x1 = t.getX();
@@ -62,7 +62,7 @@ public class ITextPdfUtil {
                             if (absoluteValue<maxDistance){
                                 Object o = tMap.get(String.valueOf(c));
                                 if (o!=null){
-                                    TextLineMode o1 = (TextLineMode) o;
+                                    PdfBDO o1 = (PdfBDO) o;
                                     if (getAbsoluteValue(o1.getX(),x)>absoluteValue){
                                         tMap.put(String.valueOf(c),t);
                                     }
@@ -80,9 +80,9 @@ public class ITextPdfUtil {
             Iterator<Float> iterator1 = keySet.iterator();
             while (iterator1.hasNext()){
                 Float next = iterator1.next();
-                Map<String,TextLineMode> map = keyYMap.get(next);
+                Map<String,PdfBDO> map = keyYMap.get(next);
                 if (map.size()==chars.length){
-                    TextLineMode t = map.get(String.valueOf(chars[0]));
+                    PdfBDO t = map.get(String.valueOf(chars[0]));
                     float x = t.getX();
                     float y = t.getY();
                     float width = t.getWidth() * chars.length*2;
@@ -115,16 +115,16 @@ public class ITextPdfUtil {
      * @Author mabo
      * @Description   根据关键字，在其后对文字进行覆盖
      */
-    public boolean manipulatePdf(String src, String dest, List<String> keywords) throws Exception {
+    public static boolean manipulatePdf(String src, String dest, List<String> keywords) throws Exception {
         PdfReader pdfReader = null;
         PdfStamper stamper = null;
         try {
             pdfReader = new PdfReader(src);
             stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
-            List<TextLineMode> list = renderText(pdfReader, keywords);
+            List<PdfBDO> list = renderText(pdfReader, keywords);
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
-                    TextLineMode mode = list.get(i);
+                    PdfBDO mode = list.get(i);
                     PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
                     canvas.saveState();
                     canvas.setColorFill(BaseColor.BLACK);
@@ -151,8 +151,8 @@ public class ITextPdfUtil {
         return false;
     }
 
-    public List<TextLineMode> renderText(PdfReader pdfReader, final List<String> keywords) {
-        final List<TextLineMode> list = new ArrayList<TextLineMode>();
+    public static List<PdfBDO> renderText(PdfReader pdfReader, final List<String> keywords) {
+        final List<PdfBDO> list = new ArrayList<PdfBDO>();
         try {
             PdfReaderContentParser pdfReaderContentParser = new PdfReaderContentParser(pdfReader);
             int pageNum = pdfReader.getNumberOfPages();
@@ -168,11 +168,11 @@ public class ITextPdfUtil {
                                 if (text.contains(keyword)) {
                                     com.itextpdf.awt.geom.Rectangle2D.Float bound = textRenderInfo.getBaseline()
                                             .getBoundingRectange();
-                                    TextLineMode lineMode = new TextLineMode();
-                                    lineMode.setHeight(bound.height == 0 ? TextLineMode.defaultHeight : bound.height);
+                                    PdfBDO lineMode = new PdfBDO();
+                                    lineMode.setHeight(bound.height == 0 ? PdfBDO.defaultHeight : bound.height);
                                     lineMode.setWidth(bound.width);
                                     lineMode.setX(bound.x);
-                                    lineMode.setY(bound.y - TextLineMode.fixHeight);
+                                    lineMode.setY(bound.y - PdfBDO.fixHeight);
                                     lineMode.setCurPage(curPage);
                                     list.add(lineMode);
                                 }
@@ -197,8 +197,8 @@ public class ITextPdfUtil {
         return list;
     }
 
-    public static List<TextLineMode> renderText(PdfReader pdfReader, String keyword) {
-        final List<TextLineMode> list = new ArrayList<TextLineMode>();
+    public static List<PdfBDO> renderText(PdfReader pdfReader, String keyword) {
+        final List<PdfBDO> list = new ArrayList<PdfBDO>();
         try {
             PdfReaderContentParser pdfReaderContentParser = new PdfReaderContentParser(pdfReader);
             int pageNum = pdfReader.getNumberOfPages();
@@ -211,11 +211,11 @@ public class ITextPdfUtil {
                             if (text.contains(keyword)) {
                                 com.itextpdf.awt.geom.Rectangle2D.Float bound = textRenderInfo.getBaseline()
                                         .getBoundingRectange();
-                                TextLineMode lineMode = new TextLineMode();
-                                lineMode.setHeight(bound.height == 0 ? TextLineMode.defaultHeight : bound.height);
+                                PdfBDO lineMode = new PdfBDO();
+                                lineMode.setHeight(bound.height == 0 ? PdfBDO.defaultHeight : bound.height);
                                 lineMode.setWidth(bound.width);
                                 lineMode.setX(bound.x);
-                                lineMode.setY(bound.y - TextLineMode.fixHeight);
+                                lineMode.setY(bound.y - PdfBDO.fixHeight);
                                 lineMode.setCurPage(curPage);
                                 list.add(lineMode);
                             }
