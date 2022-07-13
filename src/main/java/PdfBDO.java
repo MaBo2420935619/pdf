@@ -1,6 +1,6 @@
 
 
-public class TextLineMode {
+public class PdfBDO {
     public static final float defaultHeight = 14;
     public static final float fixHeight = 4;
 
