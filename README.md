@@ -6,9 +6,10 @@
 
 # 3.效果图
 修改前
-![微信图片_20220705090114](https://user-images.githubusercontent.com/92293323/177230139-be87a93a-7ce1-4f83-b130-feafae741b61.png)
+![image](https://user-images.githubusercontent.com/92293323/178894584-2f7b1b87-e49e-4968-a5b2-3133bfb7b3dd.png)
+
 修改后
-![image](https://user-images.githubusercontent.com/92293323/177230159-deeaca25-5dc7-4a25-b617-4979556316da.png)
+![image](https://user-images.githubusercontent.com/92293323/178894619-202988cd-8432-4291-8303-38a6a34915dc.png)
 
 
 
