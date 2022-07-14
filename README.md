@@ -1,4 +1,6 @@
 # 对PDF特殊信息进行覆盖处理
+
+# 新增根据字符匹配进行脱敏
 # 修改前
 
 ![微信图片_20220705090114](https://user-images.githubusercontent.com/92293323/177230139-be87a93a-7ce1-4f83-b130-feafae741b61.png)
