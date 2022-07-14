@@ -126,7 +126,115 @@ public class ITextPdfUtil {
         }
         return success;
     }
+    /**
+     * @Description : 功能说明
+     * 由于部分pdf文字会被分割
+     * 采用如下文字分割方式，寻找距离最近的字符再进行匹配
+     * 匹配后对该字符串后面的文字进行脱敏
+    */
 
+    public static boolean compareTextAfterKey(String src, String dest, String keyword,float maxDistance,String replace) throws Exception {
+        boolean success=false;
+        PdfReader pdfReader = null;
+        PdfStamper stamper = null;
+        try {
+            pdfReader = new PdfReader(src);
+            stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
+            char[] chars = keyword.toCharArray();
+            HashMap<String, List<PdfBDO>> textMap = new HashMap<>();
+            for (char c: chars) {
+                String s = String.valueOf(c);
+                List<PdfBDO> textLineModes = renderText(pdfReader, s);
+                textMap.put(s,textLineModes);
+            }
+            List<PdfBDO> textLineModes = textMap.get(String.valueOf(chars[0]));
+            Map<Float,Float> mapY = new HashMap<>();
+            for (PdfBDO textLineMode: textLineModes) {
+                //根据首字符 找出同一行的文字
+                float y = textLineMode.getY();
+                float x = textLineMode.getX();
+                mapY.put(y,x);
+            }
+            Set<Float> floats = mapY.keySet();
+            Iterator<Float> iterator = floats.iterator();
+            HashMap<Float, Map<String,PdfBDO>> keyYMap = new HashMap<>();
+            while (iterator.hasNext()){
+                Float y = iterator.next();
+                Float x = mapY.get(y);
+                HashMap<String, PdfBDO> tMap = new HashMap<>();
+                for (int i = 0; i < chars.length; i++) {
+                    char c=chars[i];
+                    List<PdfBDO> textLineModes1 = textMap.get(String.valueOf(c));
+                    for (PdfBDO t : textLineModes1) {
+                        if (t.getY()==y){
+                            //判断两文字之间的具体是否符合要求
+                            float x1 = t.getX();
+                            float absoluteValue = getAbsoluteValue(x1, x);
+                            if (absoluteValue<maxDistance){
+                                Object o = tMap.get(String.valueOf(c));
+                                if (o!=null){
+                                    PdfBDO o1 = (PdfBDO) o;
+                                    if (getAbsoluteValue(o1.getX(),x)>absoluteValue){
+                                        tMap.put(String.valueOf(c),t);
+                                    }
+                                }
+                                else {
+                                    tMap.put(String.valueOf(c),t);
+                                }
+                            }
+                        }
+                    }
+                }
+                keyYMap.put(y,tMap);
+            }
+            Set<Float> keySet = keyYMap.keySet();
+            Iterator<Float> iterator1 = keySet.iterator();
+            while (iterator1.hasNext()){
+                Float next = iterator1.next();
+                Map<String,PdfBDO> map = keyYMap.get(next);
+                if (map.size()==chars.length){
+                    PdfBDO t = map.get(String.valueOf(chars[chars.length-1]));
+                    float x = t.getX();
+                    float y = t.getY();
+                    float width = t.getWidth();
+                    float height = t.getHeight();
+                    int curPage = t.getCurPage();
+                    PdfContentByte canvas = stamper.getOverContent(curPage);
+                    canvas.saveState();
+                    canvas.setColorFill(BaseColor.WHITE);
+                    // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
+                    //开始覆盖内容,实际操作位置
+                    canvas.rectangle(x+width, y, 100, height);
+                    canvas.fill();
+                    canvas.setColorFill(BaseColor.BLACK);
+                    //开始写入文本
+                    canvas.beginText();
+                    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+                    Font font = new Font(bf,height,Font.BOLD);
+                    //设置字体和大小
+                    canvas.setFontAndSize(font.getBaseFont(), height);
+                    //设置字体的输出位置
+                    canvas.setTextMatrix(x+width, y+3);
+                    //要输出的text
+                    canvas.showText(replace) ;
+                    canvas.endText();
+                    canvas.fill();
+                    canvas.restoreState();
+                    success=true;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stamper != null)
+                stamper.close();
+            if (pdfReader != null)
+                pdfReader.close();
+        }
+        return success;
+    }
 
 
     /**
