@@ -9,14 +9,14 @@ public class Test1 {
 
     public static void main(String[] args) throws Exception {
         //输入文件
-        String source = "G:/问题文件/22.pdf";
+        String source = "G:/问题文件/测试.pdf";
         //输出文件
         String target = "G:/问题文件/test222.pdf";
 
         //字符串替换，注意设置maxDistance的值，maxDistance太小将无法正常替换文字
-//        ITextPdfUtil.stringReplace(source, target, "杨荣",50,"*****");
+        ITextPdfUtil.stringReplace(source, target, "文件",50,"*****");
         //关键字之后替换,仅仅支持关键字之后的100范围内的文字覆盖，超出范围将覆盖不到
-        ITextPdfUtil.afterKeyReplace(source, target, "日志",50,"*****");
+//        ITextPdfUtil.afterKeyReplace(source, target, "签字",50,"*****");
 
 
 //        List<String> keywords = new ArrayList<String>();
