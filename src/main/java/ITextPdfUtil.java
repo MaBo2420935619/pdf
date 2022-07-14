@@ -135,7 +135,7 @@ public class ITextPdfUtil {
                     canvas.setColorFill(BaseColor.WHITE);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
                     //开始覆盖内容,实际操作位置
-                    canvas.rectangle(x, y, width, height);
+                    canvas.rectangle(x, y, width, height*1.3);
                     canvas.fill();
                     canvas.setColorFill(BaseColor.BLACK);
                     //开始写入文本
@@ -244,7 +244,7 @@ public class ITextPdfUtil {
                     canvas.setColorFill(BaseColor.WHITE);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
                     //开始覆盖内容,实际操作位置
-                    canvas.rectangle(x+width, y, 100, height);
+                    canvas.rectangle(x+width, y, 100, height*1.3);
                     canvas.fill();
                     canvas.setColorFill(BaseColor.BLACK);
                     //开始写入文本
@@ -298,7 +298,7 @@ public class ITextPdfUtil {
                     canvas.setColorFill(BaseColor.WHITE);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
                     //开始覆盖内容,实际操作位置
-                    canvas.rectangle(mode.getX()+ mode.getWidth(), mode.getY(), 100, mode.getHeight());
+                    canvas.rectangle(mode.getX()+ mode.getWidth(), mode.getY(), 100, mode.getHeight()*1.3);
                     canvas.fill();
                     canvas.setColorFill(BaseColor.BLACK);
                     //开始写入文本
@@ -357,7 +357,7 @@ public class ITextPdfUtil {
                     // canvas.rectangle(mode.getX() - 1, mode.getY(),
                     // mode.getWidth() + 2, mode.getHeight());
                     //开始覆盖内容,实际操作位置
-                    canvas.rectangle(mode.getX(), mode.getY(), mode.getWidth(), mode.getHeight());
+                    canvas.rectangle(mode.getX(), mode.getY(), mode.getWidth(), mode.getHeight()*1.3);
                     canvas.fill();
                     canvas.setColorFill(BaseColor.BLACK);
                     //开始写入文本
@@ -401,6 +401,7 @@ public class ITextPdfUtil {
                 pdfReaderContentParser.processContent(curPage, new RenderListener() {
                     public void renderText(TextRenderInfo textRenderInfo) {
                         String text = textRenderInfo.getText();
+                        System.out.println(text);
                         if (text != null) {
                             for (int j = 0; j < keywords.size(); j++) {
                                 String keyword = keywords.get(j);
