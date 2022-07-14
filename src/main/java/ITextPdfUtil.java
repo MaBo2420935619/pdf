@@ -85,9 +85,10 @@ public class ITextPdfUtil {
                 Map<String,PdfBDO> map = keyYMap.get(next);
                 if (map.size()==chars.length){
                     PdfBDO t = map.get(String.valueOf(chars[0]));
+                    PdfBDO endPdfBDO = map.get(String.valueOf(chars[chars.length - 1]));
                     float x = t.getX();
                     float y = t.getY();
-                    float width = t.getWidth() * chars.length*2;
+                    float width = endPdfBDO.getX() - x + t.getWidth();
                     float height = t.getHeight();
                     int curPage = t.getCurPage();
                     PdfContentByte canvas = stamper.getOverContent(curPage);
