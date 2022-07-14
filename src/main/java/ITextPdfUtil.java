@@ -1,9 +1,9 @@
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.util.*;
-import com.itextpdf.text.BaseColor;
-import com.itextpdf.text.Font;
+import java.util.List;
+
+import com.itextpdf.text.*;
 import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
@@ -12,8 +12,47 @@ import com.itextpdf.text.pdf.parser.ImageRenderInfo;
 import com.itextpdf.text.pdf.parser.PdfReaderContentParser;
 import com.itextpdf.text.pdf.parser.RenderListener;
 import com.itextpdf.text.pdf.parser.TextRenderInfo;
+import org.apache.pdfbox.pdmodel.PDDocument;
+import org.apache.pdfbox.rendering.PDFRenderer;
+
+import javax.imageio.ImageIO;
+
+import static com.itextpdf.text.pdf.PdfWriter.getInstance;
 
 public class ITextPdfUtil {
+    /**
+     * @Description : 字符串替换
+     * @Author : mabo
+     * maxDistance 字符之间最大距离
+    */
+    public static boolean stringReplace(String source, String target, String keyword,float maxDistance,String replace) throws Exception{
+        boolean success =false;
+        List<String> keywords = new ArrayList<>();
+        keywords.add(keyword);
+        success = manipulatePdf(source, target, keywords, replace);
+        if (!success){
+            success = compareText(source, target, keyword, maxDistance, replace);
+        }
+        return success;
+    }
+
+
+    /**
+     * @Description : 关键字替换
+     * @Author : mabo
+     * maxDistance 字符之间最大距离
+     */
+    public static boolean afterKeyReplace(String source, String target, String keyword,float maxDistance,String replace) throws Exception{
+        boolean success =false;
+        List<String> keywords = new ArrayList<>();
+        keywords.add(keyword);
+        success = manipulatePdfAfterKey(source, target, keywords, replace);
+        if (!success){
+            success = compareTextAfterKey(source, target, keyword, maxDistance, replace);
+        }
+        return success;
+    }
+
 
 
 
@@ -444,6 +483,91 @@ public class ITextPdfUtil {
         }else {
             return f2-f1;
         }
+    }
+
+
+    public static File outputStream2File (ByteArrayOutputStream out, File file ) throws IOException {
+        FileOutputStream fileOutputStream = new FileOutputStream(file.getName());
+        fileOutputStream.write(out.toByteArray());
+        return file;
+    }
+    public File inputStream2File (InputStream in ,File file ) throws IOException {
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+        int ch = 0;
+        while ((ch = in.read()) != -1) {
+            out.write(ch);
+        }
+        outputStream2File(out,file);
+        return file;
+    }
+    public static InputStream File2InputStream (File file ) throws IOException {
+        InputStream inputStream = new FileInputStream(file);
+        return inputStream;
+    }
+
+    /**
+     *
+     * @param destPath 生成pdf文件的路劲
+     * @param images	需要转换的图片路径的数组
+     *                  imagesToPdf("G:/test333.pdf",new String[]{"G:/test.jpg"});
+     * @throws IOException
+     * @throws DocumentException
+     */
+    public static void imagesToPdf(String destPath, String[] images)
+            throws IOException, DocumentException {
+        // 第一步：创建一个document对象。
+        Document document = new Document();
+        document.setMargins(0, 0, 0, 0);
+
+        // 第二步：
+        // 创建一个PdfWriter实例，
+
+        getInstance(document,new FileOutputStream(destPath));
+
+        // 第三步：打开文档。
+        document.open();
+
+        // 第四步：在文档中增加图片。
+        int len = images.length;
+        for (int i = 0; i < len; i++) {
+            Image img = Image.getInstance(images[i]);
+            img.setAlignment(Image.ALIGN_CENTER);
+            //根据图片大小设置页面，一定要先设置页面，再newPage（），否则无效
+            document.setPageSize(new Rectangle(img.getWidth(), img.getHeight()));
+            document.newPage();
+            document.add(img);
+        }
+
+        // 第五步：关闭文档。
+        document.close();
+
+    }
+
+    /**
+     * 将PDF文件转换成多张图片
+     *
+     * @param pdfFile PDF源文件
+     * @return 图片字节数组列表
+     */
+    public static void pdf2images(File pdfFile) throws Exception {
+        String name = pdfFile.getName();
+        String[] split = name.split("\\.");
+        //加载PDF
+        PDDocument pdDocument = PDDocument.load(pdfFile);
+        //创建PDF渲染器
+        PDFRenderer renderer = new PDFRenderer(pdDocument);
+        int pages = pdDocument.getNumberOfPages();
+        for (int i = 0; i < pages; i++) {
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            //将PDF的每一页渲染成一张图片
+            BufferedImage image = renderer.renderImage(i);
+            ImageIO.write(image, "png", output);
+            FileOutputStream fileOutputStream = new FileOutputStream("G:/"+split[0]+i+".png");
+            fileOutputStream.write(output.toByteArray());
+            fileOutputStream.flush();;
+            fileOutputStream.close();
+        }
+        pdDocument.close();
     }
 }
 
