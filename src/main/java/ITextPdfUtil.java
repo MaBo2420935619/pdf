@@ -3,6 +3,8 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.*;
 import com.itextpdf.text.BaseColor;
+import com.itextpdf.text.Font;
+import com.itextpdf.text.pdf.BaseFont;
 import com.itextpdf.text.pdf.PdfContentByte;
 import com.itextpdf.text.pdf.PdfReader;
 import com.itextpdf.text.pdf.PdfStamper;
@@ -22,7 +24,7 @@ public class ITextPdfUtil {
      * 采用如下文字分割方式，寻找距离最近的字符再进行匹配
      */
 
-    public static boolean compareText(String src, String dest, String keyword,float maxDistance) throws Exception {
+    public static boolean compareText(String src, String dest, String keyword,float maxDistance,String replace) throws Exception {
         boolean success=false;
         PdfReader pdfReader = null;
         PdfStamper stamper = null;
@@ -90,9 +92,23 @@ public class ITextPdfUtil {
                     int curPage = t.getCurPage();
                     PdfContentByte canvas = stamper.getOverContent(curPage);
                     canvas.saveState();
-                    canvas.setColorFill(BaseColor.BLACK);
+                    canvas.setColorFill(BaseColor.WHITE);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
+                    //开始覆盖内容,实际操作位置
                     canvas.rectangle(x, y, width, height);
+                    canvas.fill();
+                    canvas.setColorFill(BaseColor.BLACK);
+                    //开始写入文本
+                    canvas.beginText();
+                    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+                    Font font = new Font(bf,height,Font.BOLD);
+                    //设置字体和大小
+                    canvas.setFontAndSize(font.getBaseFont(), height);
+                    //设置字体的输出位置
+                    canvas.setTextMatrix(x, y+3);
+                    //要输出的text
+                    canvas.showText(replace) ;
+                    canvas.endText();
                     canvas.fill();
                     canvas.restoreState();
                     success=true;
@@ -111,31 +127,48 @@ public class ITextPdfUtil {
         return success;
     }
 
+
+
     /**
-     * @Author mabo
-     * @Description   根据关键字，在其后对文字进行覆盖
+     * 根据关键字，在其后进行脱敏
+     * @Author : mabo
      */
-    public static boolean manipulatePdf(String src, String dest, List<String> keywords) throws Exception {
+    public static boolean manipulatePdfAfterKey(String src, String dest, List<String> keywords,String replace ) throws Exception {
+        boolean success=false;
         PdfReader pdfReader = null;
         PdfStamper stamper = null;
         try {
             pdfReader = new PdfReader(src);
-            stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
             List<PdfBDO> list = renderText(pdfReader, keywords);
+            stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
             if (list != null) {
                 for (int i = 0; i < list.size(); i++) {
                     PdfBDO mode = list.get(i);
+
                     PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
                     canvas.saveState();
-                    canvas.setColorFill(BaseColor.BLACK);
-                    // canvas.setColorFill(BaseColor.BLUE);
+                    canvas.setColorFill(BaseColor.WHITE);
                     // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
-                    canvas.rectangle(mode.getX()+mode.getWidth(), mode.getY(), 8, mode.getHeight());
+                    //开始覆盖内容,实际操作位置
+                    canvas.rectangle(mode.getX()+ mode.getWidth(), mode.getY(), 100, mode.getHeight());
+                    canvas.fill();
+                    canvas.setColorFill(BaseColor.BLACK);
+                    //开始写入文本
+                    canvas.beginText();
+                    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+                    Font font = new Font(bf,mode.getHeight(),Font.BOLD);
+                    //设置字体和大小
+                    canvas.setFontAndSize(font.getBaseFont(), mode.getHeight());
+                    //设置字体的输出位置
+                    canvas.setTextMatrix(mode.getX()+mode.getWidth()+10, mode.getY()+3);
+                    //要输出的text
+                    canvas.showText(replace) ;
+                    canvas.endText();
                     canvas.fill();
                     canvas.restoreState();
+                    success=true;
                 }
             }
-            return true;
         } catch (FileNotFoundException e) {
             e.printStackTrace();
         } catch (IOException e) {
@@ -148,9 +181,67 @@ public class ITextPdfUtil {
             if (pdfReader != null)
                 pdfReader.close();
         }
-        return false;
+        return success;
     }
 
+
+
+    /**
+     * @Description : 匹配pdf中的文字，进行替换
+     * @Author : mabo
+     */
+    public static boolean manipulatePdf(String src, String dest, List<String> keywords,String replace ) throws Exception {
+        boolean success=false;
+        PdfReader pdfReader = null;
+        PdfStamper stamper = null;
+        try {
+            pdfReader = new PdfReader(src);
+            List<PdfBDO> list = renderText(pdfReader, keywords);
+            stamper = new PdfStamper(pdfReader, new FileOutputStream(dest));
+            if (list != null) {
+                for (int i = 0; i < list.size(); i++) {
+                    PdfBDO mode = list.get(i);
+
+                    PdfContentByte canvas = stamper.getOverContent(mode.getCurPage());
+                    canvas.saveState();
+                    canvas.setColorFill(BaseColor.WHITE);
+                    // 以左下点为原点，x轴的值，y轴的值，总宽度，总高度：
+                    // canvas.rectangle(mode.getX() - 1, mode.getY(),
+                    // mode.getWidth() + 2, mode.getHeight());
+                    //开始覆盖内容,实际操作位置
+                    canvas.rectangle(mode.getX(), mode.getY(), mode.getWidth(), mode.getHeight());
+                    canvas.fill();
+                    canvas.setColorFill(BaseColor.BLACK);
+                    //开始写入文本
+                    canvas.beginText();
+                    BaseFont bf = BaseFont.createFont("STSong-Light", "UniGB-UCS2-H", BaseFont.EMBEDDED);
+                    Font font = new Font(bf,mode.getHeight(),Font.BOLD);
+                    //设置字体和大小
+                    canvas.setFontAndSize(font.getBaseFont(), mode.getHeight());
+                    //设置字体的输出位置
+                    canvas.setTextMatrix(mode.getX(), mode.getY()+3);
+                    //要输出的text
+                    canvas.showText(replace) ;
+                    canvas.endText();
+                    canvas.fill();
+                    canvas.restoreState();
+                    success=true;
+                }
+            }
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if (stamper != null)
+                stamper.close();
+            if (pdfReader != null)
+                pdfReader.close();
+        }
+        return success;
+    }
     public static List<PdfBDO> renderText(PdfReader pdfReader, final List<String> keywords) {
         final List<PdfBDO> list = new ArrayList<PdfBDO>();
         try {

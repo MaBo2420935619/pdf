@@ -8,10 +8,15 @@ public class Test1 {
      */
 
     public static void main(String[] args) throws Exception {
-        String source = "F:/测试文件/temp2.pdf";
-        String target = "F:/测试文件/test222.pdf";
+        String source = "G:/问题文件/temp.pdf";
+        String target = "G:/问题文件/test222.pdf";
         List<String> keywords = new ArrayList<String>();
         keywords.add("管");
-        new ITextPdfUtil().manipulatePdf(source, target, keywords);
+        //全字符查找替换
+        ITextPdfUtil.manipulatePdf(source, target, keywords,"*****");
+        //根据字符逐个匹配进行脱敏,因为部分pdf格式问题只能单个字符识别
+//        ITextPdfUtil.compareText(source, target, "管理员",30,"*****");
+        //根据关键字，在其后进行脱敏
+//        ITextPdfUtil.manipulatePdfAfterKey(source, target, keywords,"*****");
     }
 }
