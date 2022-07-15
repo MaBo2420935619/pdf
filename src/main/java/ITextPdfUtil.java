@@ -401,7 +401,7 @@ public class ITextPdfUtil {
                 pdfReaderContentParser.processContent(curPage, new RenderListener() {
                     public void renderText(TextRenderInfo textRenderInfo) {
                         String text = textRenderInfo.getText();
-                        System.out.println(text);
+//                        System.out.println(text);
                         if (text != null) {
                             for (int j = 0; j < keywords.size(); j++) {
                                 String keyword = keywords.get(j);
